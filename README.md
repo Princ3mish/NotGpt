@@ -20,7 +20,7 @@ AI-Powered Content Generation Platform
 
 ## LIVE - DEMO 🌐
 
-Visit the 👉 [_LINK 🔗_](https://notgpt.vercel.app)
+Visit the 👉 [_LINK 🔗_](https://not-gpt-nu.vercel.app/)
 
 </div>
 
