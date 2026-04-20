@@ -3,6 +3,8 @@ import { useAppContext } from "../context/AppContext";
 import { assets } from "../assets/assets";
 import moment from "moment";
 import toast from "react-hot-toast";
+import { motion, AnimatePresence } from "framer-motion";
+import { MessageSquarePlus, Search, LogOut, SunMoon, Image as ImageIcon, Gem, MessageSquare, Trash2, X } from "lucide-react";
 
 const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
   const {
@@ -24,16 +26,14 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
   const logout = () => {
     localStorage.removeItem("token");
     setToken(null);
+    navigate("/");
     toast.success("Logged out successfully");
   };
 
   const deleteChat = async (e, chatId) => {
     try {
       e.stopPropagation();
-      const confirm = window.confirm(
-        "Are you sure you want to delete this chat?"
-      );
-
+      const confirm = window.confirm("Are you sure you want to delete this chat?");
       if (!confirm) return;
 
       const { data } = await axios.post(
@@ -52,171 +52,179 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
     }
   };
 
+  const navItemClass = "flex items-center gap-3 p-3 mt-2 rounded-xl cursor-pointer transition-all duration-300 border border-transparent hover:bg-white/5 hover:border-white/10 group overflow-hidden relative";
+
   return (
     <div
-      className={`flex flex-col h-screen min-w-72 p-5 dark:bg-gradient-to-b from-[#242124]/30 to-[#000000]/30 border-r border-[#80609F]/30 backdrop-blur-3xl transition-all duration-500 max-md:absolute left-0 z-1 ${
+      className={`flex flex-col h-screen min-w-[300px] p-5 bg-[#0a0a0a] border-r border-[#80609F]/20 transition-transform duration-500 max-md:absolute left-0 z-50 ${
         !isMenuOpen && "max-md:-translate-x-full"
       }`}
     >
-      {/* Logo */}
-      <img
-        src={theme === "dark" ? assets.logo_full : assets.logo_full_dark}
-        alt="logo"
-        className="w-full max-w-48"
-      />
-
-      {/* New Chat Button */}
-      <button
-        onClick={createNewChat}
-        className="flex justify-center items-center w-full py-2 mt-10 text-white bg-gradient-to-r from-[#A456F7] to-[#3D81F6] text-sm rounded-md cursor-pointer"
-      >
-        <span className="mr-2 text-xl">+</span> New Chat
-      </button>
-
-      {/* Search Conversations */}
-      <div className="flex items-center gap-2 p-3 mt-4 border border-gray-400 dark:border-white/20 rounded-md">
-        <img
-          src={assets.search_icon}
-          alt="search"
-          className="w-4 not-dark:invert"
-        />
-        <input
-          onChange={(e) => setSearch(e.target.value)}
-          value={search}
-          type="text"
-          placeholder="Search conversations"
-          className="text-xs placeholder:text-gray-400 outline-none"
-        />
+      {/* Background glow specific to Sidebar */}
+      <div className="absolute top-0 right-0 w-full h-full pointer-events-none overflow-hidden z-0">
+         <div className="absolute top-[-20%] left-[-50%] w-[150%] h-[50%] bg-purple-900/10 blur-[100px] rounded-full" />
       </div>
 
-      {/* Recent Chats */}
-      {chats.length > 0 && <p className="mt-4 text-sm">Recent Chats</p>}
-      <div className="flex-1 overflow-y-scroll mt-3 text-sm space-y-3">
-        {chats
-          .filter((chat) =>
-            chat.messages[0]
-              ? chat.messages[0]?.content
-                  .toLowerCase()
-                  .includes(search.toLowerCase())
-              : chat.name.toLowerCase().includes(search.toLowerCase())
-          )
-          .map((chat) => (
-            <div
-              onClick={() => {
-                navigate("/chat");
-                setSelectedChat(chat);
-                setIsMenuOpen(false);
-              }}
-              key={chat._id}
-              className="p-2 px-4 dark:bg-[#57317C]/10 border border-gray-300 dark:border-[#80609F]/15 rounded-md cursor-pointer flex justify-between group"
-            >
-              <div>
-                <p className="truncate w-full">
-                  {chat.messages.length > 0
-                    ? chat.messages[0].content.slice(0, 32)
-                    : chat.name}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-[#B1A6C0]">
-                  {moment(chat.updatedAt).fromNow()}
-                </p>
-              </div>
-              <img
-                onClick={(e) =>
-                  toast.promise(deleteChat(e, chat._id), {
-                    loading: "deleting...",
-                  })
-                }
-                src={assets.bin_icon}
-                alt="bin"
-                className="hidden group-hover:block w-4 cursor-pointer not-dark:invert"
-              />
-            </div>
-          ))}
-      </div>
-
-      {/* Community Images */}
-      <div
-        onClick={() => {
-          navigate("/community");
-          setIsMenuOpen(false);
-        }}
-        className="flex  items-center gap-2 p-3 mt-4 border border-gray-300 dark:border-white/15 rounded-md cursor-pointer hover:scale-103 transition-all"
-      >
-        <img
-          src={assets.gallery_icon}
-          alt="gallery"
-          className="w-4.5 not-dark:invert"
-        />
-        <div className="flex flex-col text-sm">
-          <p>Community Images</p>
-        </div>
-      </div>
-
-      {/* Credit Purchases Option */}
-      <div
-        onClick={() => {
-          navigate("/credits");
-          setIsMenuOpen(false);
-        }}
-        className="flex  items-center gap-2 p-3 mt-4 border border-gray-300 dark:border-white/15 rounded-md cursor-pointer hover:scale-103 transition-all"
-      >
-        <img
-          src={assets.diamond_icon}
-          alt="diamond"
-          className="w-4.5 dark:invert"
-        />
-        <div className="flex flex-col text-sm">
-          <p>Credits : {user?.credits}</p>
-          <p className="text-xs text-gray-400">
-            Purchase credits to use NotGpt
-          </p>
-        </div>
-      </div>
-
-      {/* Dark Mode Toggle */}
-      <div className="flex items-center justify-between gap-2 p-3 mt-4 border border-gray-300 dark:border-white/15 rounded-md">
-        <div className="flex items-center gap-2 text-sm">
+      <div className="relative z-10 flex flex-col h-full">
+        {/* Header / Logo */}
+        <div className="flex justify-between items-center mb-6">
           <img
-            src={assets.theme_icon}
-            alt="theme"
-            className="w-4 not-dark:invert"
+            src={assets.logo_full_dark}
+            alt="NotGPT Logo"
+            className="w-full max-w-[140px]"
+            onClick={() => { navigate("/"); setIsMenuOpen(false); }}
           />
-          <p>Dark Mode</p>
+          <button 
+            className="md:hidden text-gray-400 hover:text-white transition-colors"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            <X size={20} />
+          </button>
         </div>
-        <label className="relative inline-flex cursor-pointer">
+
+        {/* New Chat Button */}
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={createNewChat}
+          className="flex justify-center items-center gap-2 w-full py-3 mb-6 font-medium text-white bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl shadow-lg shadow-purple-600/20 hover:shadow-purple-600/40 transition-all border border-white/10 relative overflow-hidden group"
+        >
+          <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
+          <MessageSquarePlus size={18} className="relative z-10" />
+          <span className="relative z-10">New Chat</span>
+        </motion.button>
+
+        {/* Search */}
+        <div className="flex items-center gap-2 px-3 py-2.5 mb-6 bg-white/5 border border-white/10 rounded-xl focus-within:border-purple-500/50 focus-within:bg-white/10 transition-colors">
+          <Search size={16} className="text-gray-400" />
           <input
-            onChange={() => setTheme(theme === "dark" ? "light" : "dark")}
-            type="checkbox"
-            className="sr-only peer"
-            checked={theme === "dark"}
+            onChange={(e) => setSearch(e.target.value)}
+            value={search}
+            type="text"
+            placeholder="Search conversations"
+            className="flex-1 bg-transparent text-sm text-white placeholder:text-gray-500 outline-none"
           />
-          <div className="w-9 h-5 bg-gray-400 rounded-full peer-checked:bg-purple-600 transition-all"></div>
-          <span className="absolute left-1 top-1 w-3 h-3 bg-white rounded-full transition-transform peer-checked:translate-x-4"></span>
-        </label>
-      </div>
+        </div>
 
-      {/* User Account */}
-      <div className="flex items-center gap-3 p-3 mt-4 border border-gray-300 dark:border-white/15 rounded-md cursor-pointer group">
-        <img src={assets.user_icon} alt="user" className="w-7 rounded-full" />
-        <p onClick={() => !user && navigate("/login")} className="flex-1 text-sm dark:text-primary truncate">
-          {user ? user.name : "Login your account"}
-        </p>
-        {user && (
-          <img
-            onClick={logout}
-            src={assets.logout_icon}
-            alt="logout"
-            className="h-5 cursor-pointer hidden not-dark:invert group-hover:block"
-          />
-        )}
-      </div>
+        {/* Chat History */}
+        <div className="flex-1 overflow-y-auto scroll-smooth pr-1 -mr-1">
+          {chats.length > 0 && (
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-2">
+              Recent Chats
+            </p>
+          )}
+          <AnimatePresence>
+            {chats
+              .filter((chat) =>
+                chat.messages[0]
+                  ? chat.messages[0]?.content.toLowerCase().includes(search.toLowerCase())
+                  : chat.name.toLowerCase().includes(search.toLowerCase())
+              )
+              .map((chat, idx) => (
+                <motion.div
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ delay: idx * 0.05 }}
+                  onClick={() => {
+                    navigate("/chat");
+                    setSelectedChat(chat);
+                    setIsMenuOpen(false);
+                  }}
+                  key={chat._id}
+                  className="p-3 mb-2 bg-[#57317C]/10 border border-transparent hover:border-[#80609F]/30 hover:bg-[#57317C]/20 rounded-xl cursor-pointer flex justify-between items-center group transition-colors"
+                >
+                  <div className="flex items-center gap-3 overflow-hidden">
+                    <MessageSquare size={16} className="text-purple-400 shrink-0" />
+                    <div className="overflow-hidden">
+                      <p className="text-sm text-gray-200 truncate w-full">
+                        {chat.messages.length > 0
+                          ? chat.messages[0].content.slice(0, 30)
+                          : chat.name}
+                      </p>
+                      <p className="text-[10px] text-gray-500 mt-0.5">
+                        {moment(chat.updatedAt).fromNow()}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={(e) => deleteChat(e, chat._id)}
+                    className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-white/10 rounded-lg transition-all text-gray-400 hover:text-red-400 shrink-0"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </motion.div>
+              ))}
+          </AnimatePresence>
+        </div>
 
-      <img
-        onClick={() => setIsMenuOpen(false)}
-        src={assets.close_icon}
-        alt="close"
-        className="absolute top-3 right-3 w-5 h-5 cursor-pointer md:hidden not-dark:invert"
-      />
+        {/* Bottom Nav Actions */}
+        <div className="mt-4 pt-4 border-t border-white/10 flex flex-col gap-1">
+          <div
+            onClick={() => { navigate("/community"); setIsMenuOpen(false); }}
+            className={navItemClass}
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-transparent translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-300" />
+            <ImageIcon size={18} className="text-gray-400 group-hover:text-purple-400 relative z-10 transition-colors" />
+            <span className="text-sm font-medium text-gray-300 group-hover:text-white relative z-10 transition-colors">Community Gallery</span>
+          </div>
+
+          <div
+            onClick={() => { navigate("/credits"); setIsMenuOpen(false); }}
+            className={navItemClass}
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-transparent translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-300" />
+            <Gem size={18} className="text-gray-400 group-hover:text-blue-400 relative z-10 transition-colors" />
+            <div className="flex flex-col relative z-10">
+              <span className="text-sm font-medium text-gray-300 group-hover:text-white transition-colors">
+                Credits: <span className="text-blue-400">{user?.credits || 0}</span>
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between p-3 mt-2 rounded-xl bg-white/5 border border-white/5">
+            <div className="flex items-center gap-3">
+              <SunMoon size={18} className="text-gray-400" />
+              <span className="text-sm font-medium text-gray-300">Theme</span>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                onChange={() => setTheme(theme === "dark" ? "light" : "dark")}
+                type="checkbox"
+                className="sr-only peer"
+                checked={theme === "dark"}
+              />
+              <div className="w-10 h-5 bg-gray-600 rounded-full peer-checked:bg-purple-600 transition-colors relative">
+                <div className="absolute top-0.5 left-0.5 bg-white w-4 h-4 rounded-full transition-transform peer-checked:translate-x-5 shadow-sm" />
+              </div>
+            </label>
+          </div>
+
+          {/* User Profile */}
+          <div className="flex items-center gap-3 p-3 mt-2 bg-gradient-to-r from-purple-900/20 to-transparent border border-purple-500/20 rounded-xl cursor-default">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white font-bold text-sm shadow-inner shrink-0">
+              {user ? user.name.charAt(0).toUpperCase() : "?"}
+            </div>
+            <div className="flex flex-col overflow-hidden flex-1 cursor-pointer" onClick={() => !user && navigate("/login")}>
+              <span className="text-sm font-medium text-white truncate">
+                {user ? user.name : "Sign in required"}
+              </span>
+              <span className="text-[10px] text-gray-500 truncate">
+                {user ? user.email : "Access all features"}
+              </span>
+            </div>
+            {user && (
+              <button 
+                onClick={logout}
+                className="p-1.5 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-white shrink-0"
+                title="Logout"
+              >
+                <LogOut size={16} />
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
