@@ -42,6 +42,6 @@ export const deleteChat = async (req, res) => {
 
     res.json({ success: true, message: "Chat deleted" });
   } catch (error) {
-    req.json({ success: false, message: error.message });
+    res.json({ success: false, message: error.message });
   }
 };

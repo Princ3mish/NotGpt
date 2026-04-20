@@ -37,8 +37,12 @@ export const AppContextProvider = ({ children }) => {
 
   const createNewChat = async () => {
     try {
-      if (!user) return toast("Login to create a new chat");
-      navigate("/");
+      if (!user) {
+        toast("Login to create a new chat");
+        navigate("/login");
+        return;
+      }
+      navigate("/chat");
 
       await axios.get("/api/chat/create", {
         headers: { Authorization: token },
@@ -90,6 +94,7 @@ export const AppContextProvider = ({ children }) => {
       setChats([]);
       setSelectedChat(null);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   useEffect(() => {
@@ -99,6 +104,7 @@ export const AppContextProvider = ({ children }) => {
       setUser(null);
       setLoadingUser(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   const value = {
@@ -123,4 +129,5 @@ export const AppContextProvider = ({ children }) => {
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAppContext = () => useContext(AppContext);

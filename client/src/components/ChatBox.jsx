@@ -7,7 +7,7 @@ import toast from "react-hot-toast";
 const ChatBox = () => {
   const containerRef = useRef(null);
 
-  const { selectedChat, theme, user, axios, token, setUser } = useAppContext();
+  const { selectedChat, theme, user, axios, token, setUser, navigate } = useAppContext();
 
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -17,13 +17,18 @@ const ChatBox = () => {
   const [isPublished, setIsPublished] = useState(false);
 
   const onSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!user) {
+      toast("Login to send message");
+      navigate("/login");
+      return;
+    }
+
+    const promptCopy = prompt;
+    setLoading(true);
+
     try {
-      e.preventDefault();
-
-      if (!user) return toast("Login to send message");
-      setLoading(true);
-
-      const promptCopy = prompt;
       setPrompt("");
       setMessages((prev) => [
         ...prev,
@@ -51,13 +56,20 @@ const ChatBox = () => {
           setUser((prev) => ({ ...prev, credits: prev.credits - 1 }));
         }
       } else {
-        toast.error(data.message);
+        // Restore the prompt so user doesn't lose it
         setPrompt(promptCopy);
+        // Remove the optimistically added user message
+        setMessages((prev) => prev.slice(0, -1));
+        toast.error(data.message);
       }
     } catch (error) {
-      toast.error(error.message);
+      setPrompt(promptCopy);
+      setMessages((prev) => prev.slice(0, -1));
+      const msg = error?.response?.status === 429
+        ? "AI service is busy — please wait a moment and try again."
+        : error.message;
+      toast.error(msg);
     } finally {
-      setPrompt("");
       setLoading(false);
     }
   };

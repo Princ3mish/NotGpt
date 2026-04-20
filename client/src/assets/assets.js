@@ -324,5 +324,9 @@ export const dummyPublishedImages = [
     {
         "imageUrl": ai_image1,
         "userName": "GreatStack"
+    },
+    {
+        "imageUrl": ai_image12,
+        "userName": "GreatStack"
     }
 ]

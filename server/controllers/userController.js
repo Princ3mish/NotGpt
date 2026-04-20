@@ -12,18 +12,26 @@ const generateToken = (id) => {
 export const registerUser = async (req, res) => {
   const { name, email, password } = req.body;
 
+  if (!name || !email || !password) {
+    return res.json({ success: false, message: "All fields are required" });
+  }
+
+  if (password.length < 6) {
+    return res.json({ success: false, message: "Password must be at least 6 characters" });
+  }
+
   try {
-    const userExists = await User.findOne({ email });
+    const userExists = await User.findOne({ email: email.toLowerCase() });
 
     if (userExists) {
-      return res.json({ success: false, message: "User already exists" });
+      return res.json({ success: false, message: "An account with this email already exists" });
     }
 
-    const user = await User.create({ name, email, password });
+    const user = await User.create({ name, email: email.toLowerCase(), password });
 
     const token = generateToken(user._id);
 
-    res.json({ success: true, token });
+    res.json({ success: true, token, user: { _id: user._id, name: user.name, email: user.email, credits: user.credits } });
   } catch (error) {
     return res.json({ success: false, message: error.message });
   }
@@ -33,19 +41,25 @@ export const registerUser = async (req, res) => {
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
+  if (!email || !password) {
+    return res.json({ success: false, message: "Email and password are required" });
+  }
+
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: email.toLowerCase() });
 
-    if (user) {
-      const isMatch = await bcrypt.compare(password, user.password);
-
-      if (isMatch) {
-        const token = generateToken(user._id);
-        return res.json({ success: true, token });
-      }
+    if (!user) {
+      return res.json({ success: false, message: "Invalid email or password" });
     }
 
-    return res.json({ success: false, message: "Invalid email or password" });
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.json({ success: false, message: "Invalid email or password" });
+    }
+
+    const token = generateToken(user._id);
+    return res.json({ success: true, token, user: { _id: user._id, name: user.name, email: user.email, credits: user.credits } });
   } catch (error) {
     return res.json({ success: false, message: error.message });
   }

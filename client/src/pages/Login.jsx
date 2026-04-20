@@ -8,7 +8,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const { axios, setToken } = useAppContext();
+  const { axios, setToken, navigate } = useAppContext();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,6 +20,7 @@ const Login = () => {
       if (data.success) {
         setToken(data.token);
         localStorage.setItem("token", data.token);
+        navigate("/chat");
       } else {
         toast.error(data.message);
       }

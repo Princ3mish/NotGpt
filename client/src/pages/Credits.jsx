@@ -7,7 +7,7 @@ const Credits = () => {
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const { token, axios } = useAppContext();
+  const { token, axios, user, navigate } = useAppContext();
 
   const fetchPlans = async () => {
     try {
@@ -29,6 +29,11 @@ const Credits = () => {
 
   const purchasePlan = async (planId) => {
     try {
+      if (!user) {
+        toast.error("Please login to purchase credits.");
+        navigate("/login");
+        return;
+      }
       const { data } = await axios.post(
         "/api/credit/purchase",
         { planId },
@@ -49,6 +54,7 @@ const Credits = () => {
 
   useEffect(() => {
     fetchPlans();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (loading) return <Loading />;

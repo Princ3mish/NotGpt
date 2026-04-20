@@ -4,11 +4,22 @@ import User from "../models/User.js";
 export const protect = async (req, res, next) => {
   let token = req.headers.authorization;
 
+  // Support both "Bearer <token>" and raw token formats
+  if (token && token.startsWith("Bearer ")) {
+    token = token.slice(7);
+  }
+
+  if (!token || token === "null" || token === "undefined") {
+    return res
+      .status(401)
+      .json({ success: false, message: "Not authorized, no token" });
+  }
+
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decoded.id;
 
-    const user = await User.findById(userId);
+    const user = await User.findById(userId).select("-password");
 
     if (!user) {
       return res.json({

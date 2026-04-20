@@ -4,6 +4,24 @@ import User from "../models/User.js";
 import openai from "../configs/openai.js";
 import imagekit from "../configs/imageKit.js";
 
+// Helper: retry with exponential backoff for rate limits
+const withRetry = async (fn, retries = 3, delayMs = 1500) => {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      const status = err?.status ?? err?.response?.status;
+      if (status === 429 && attempt < retries) {
+        const wait = delayMs * attempt;
+        console.log(`Rate limited (429). Retrying in ${wait}ms... (attempt ${attempt}/${retries})`);
+        await new Promise((r) => setTimeout(r, wait));
+      } else {
+        throw err;
+      }
+    }
+  }
+};
+
 // Text-based AI Chat Message Controller
 export const textMessageController = async (req, res) => {
   try {
@@ -13,13 +31,21 @@ export const textMessageController = async (req, res) => {
     if (req.user.credits < 1) {
       return res.json({
         success: false,
-        message: "You don't have enough credits to use this feature",
+        message: "You don't have enough credits. Please purchase more.",
       });
     }
 
     const { chatId, prompt } = req.body;
 
+    if (!prompt || !chatId) {
+      return res.json({ success: false, message: "Prompt and chatId are required" });
+    }
+
     const chat = await Chat.findOne({ userId, _id: chatId });
+    if (!chat) {
+      return res.json({ success: false, message: "Chat not found" });
+    }
+
     chat.messages.push({
       role: "user",
       content: prompt,
@@ -27,27 +53,40 @@ export const textMessageController = async (req, res) => {
       isImage: false,
     });
 
-    const { choices } = await openai.chat.completions.create({
-      model: "gemini-2.0-flash",
-      messages: [
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
-    });
+    let choices;
+    try {
+      const result = await withRetry(() =>
+        openai.chat.completions.create({
+          model: "gemini-2.0-flash",
+          messages: [{ role: "user", content: prompt }],
+        })
+      );
+      choices = result.choices;
+    } catch (err) {
+      const status = err?.status ?? err?.response?.status;
+      if (status === 429) {
+        return res.json({
+          success: false,
+          message: "The AI service is currently busy. Please wait a moment and try again.",
+        });
+      }
+      throw err;
+    }
 
     const reply = {
       ...choices[0].message,
       timestamp: Date.now(),
       isImage: false,
     };
+
     res.json({ success: true, reply });
 
+    // Save after responding (non-blocking)
     chat.messages.push(reply);
     await chat.save();
     await User.updateOne({ _id: userId }, { $inc: { credits: -1 } });
   } catch (error) {
+    console.error("textMessageController error:", error.message);
     res.json({ success: false, message: error.message });
   }
 };
@@ -61,16 +100,21 @@ export const imageMessageController = async (req, res) => {
     if (req.user.credits < 2) {
       return res.json({
         success: false,
-        message: "You don't have enough credits to use this feature",
+        message: "You need at least 2 credits to generate an image.",
       });
     }
 
     const { prompt, chatId, isPublished } = req.body;
 
-    // Find chat
-    const chat = await Chat.findOne({ userId, _id: chatId });
+    if (!prompt || !chatId) {
+      return res.json({ success: false, message: "Prompt and chatId are required" });
+    }
 
-    // Push user message
+    const chat = await Chat.findOne({ userId, _id: chatId });
+    if (!chat) {
+      return res.json({ success: false, message: "Chat not found" });
+    }
+
     chat.messages.push({
       role: "user",
       content: prompt,
@@ -78,26 +122,35 @@ export const imageMessageController = async (req, res) => {
       isImage: false,
     });
 
-    // Encode the prompt
-    const encodedPrompt = encodeURIComponent(prompt);
-
     // Construct ImageKit AI generation URL
-    const generatedImageUrl = `${
-      process.env.IMAGEKIT_URL_ENDPOINT
-    }/ik-genimg-prompt-${encodedPrompt}/notgpt/${Date.now()}.png?tr=w-800,h-800`;
+    const encodedPrompt = encodeURIComponent(prompt);
+    const generatedImageUrl = `${process.env.IMAGEKIT_URL_ENDPOINT}/ik-genimg-prompt-${encodedPrompt}/notgpt/${Date.now()}.png?tr=w-800,h-800`;
 
-    // Trigger generation by fetching from ImageKit
-    const aiImageResponse = await axios.get(generatedImageUrl, {
-      responseType: "arraybuffer",
-    });
+    let aiImageResponse;
+    try {
+      aiImageResponse = await withRetry(() =>
+        axios.get(generatedImageUrl, { responseType: "arraybuffer" })
+      );
+    } catch (err) {
+      const status = err?.response?.status ?? err?.status;
+      if (status === 429) {
+        return res.json({
+          success: false,
+          message: "The image generation service is busy. Please try again in a moment.",
+        });
+      }
+      return res.json({
+        success: false,
+        message: `Image generation failed: ${err.message}`,
+      });
+    }
 
-    // Convert to Base64
+    // Convert to Base64 and upload
     const base64Image = `data:image/png;base64,${Buffer.from(
       aiImageResponse.data,
       "binary"
     ).toString("base64")}`;
 
-    // Upload to ImageKit Media Library
     const uploadResponse = await imagekit.upload({
       file: base64Image,
       fileName: `notgpt/${Date.now()}.png`,
@@ -109,18 +162,17 @@ export const imageMessageController = async (req, res) => {
       content: uploadResponse.url,
       timestamp: Date.now(),
       isImage: true,
-      isPublished,
+      isPublished: !!isPublished,
     };
 
     res.json({ success: true, reply });
 
-    // Push AI reply
+    // Save after responding (non-blocking)
     chat.messages.push(reply);
     await chat.save();
-
-    // Deduct 2 credits for image generation
     await User.updateOne({ _id: userId }, { $inc: { credits: -2 } });
   } catch (error) {
+    console.error("imageMessageController error:", error.message);
     res.json({ success: false, message: error.message });
   }
 };
