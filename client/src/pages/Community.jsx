@@ -59,13 +59,13 @@ const Community = () => {
           className="flex items-center gap-3 mb-10"
         >
           <div className="p-3 bg-purple-500/10 border border-purple-500/20 rounded-xl">
-            <ImageIcon className="text-purple-400 w-6 h-6" />
+            <ImageIcon className="text-purple-600 dark:text-purple-400 w-6 h-6" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+            <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400">
               Community Gallery
             </h2>
-            <p className="text-sm text-gray-500">Discover AI creations shared by the NotGPT community</p>
+            <p className="text-sm text-gray-600 dark:text-gray-500">Discover AI creations shared by the NotGPT community</p>
           </div>
         </motion.div>
 
@@ -83,7 +83,7 @@ const Community = () => {
                 href={item.imageUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="relative group block rounded-2xl overflow-hidden border border-white/10 dark:border-white/5 bg-white/5 shadow-lg backdrop-blur-sm"
+                className="relative group block rounded-2xl overflow-hidden border border-gray-200 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 shadow-lg backdrop-blur-sm"
               >
                 <div className="aspect-square w-full overflow-hidden">
                   <img
@@ -108,10 +108,10 @@ const Community = () => {
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="flex flex-col items-center justify-center p-20 border border-dashed border-white/10 rounded-2xl bg-white/5"
+            className="flex flex-col items-center justify-center p-20 border border-dashed border-gray-300 dark:border-white/10 rounded-2xl bg-gray-50 dark:bg-white/5"
           >
-            <ImageIcon className="w-12 h-12 text-gray-600 mb-4" />
-            <p className="text-gray-400 font-medium">No images available yet.</p>
+            <ImageIcon className="w-12 h-12 text-gray-400 dark:text-gray-600 mb-4" />
+            <p className="text-gray-700 dark:text-gray-400 font-medium">No images available yet.</p>
             <p className="text-sm text-gray-500 mt-1">Be the first to share an AI generated masterpiece!</p>
           </motion.div>
         )}

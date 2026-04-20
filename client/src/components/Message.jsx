@@ -37,7 +37,7 @@ const Message = ({ message }) => {
         <div className={`flex flex-col gap-2 p-4 rounded-2xl backdrop-blur-xl border shadow-sm ${
           isUser 
             ? "bg-gradient-to-br from-purple-600/90 to-blue-600/90 border-transparent text-white rounded-tr-none" 
-            : "bg-white/5 dark:bg-[#57317C]/20 border-gray-200 dark:border-[#80609F]/30 text-gray-800 dark:text-gray-200 rounded-tl-none"
+            : "bg-white dark:bg-[#57317C]/20 border-gray-200 dark:border-[#80609F]/30 text-gray-800 dark:text-gray-200 rounded-tl-none shadow-md"
         }`}>
           {message.isImage ? (
             <motion.div 
@@ -62,7 +62,7 @@ const Message = ({ message }) => {
             </div>
           )}
           <span className={`text-[10px] font-medium tracking-wide flex justify-end ${
-            isUser ? "text-white/70" : "text-gray-400 dark:text-[#B1A6C0]"
+            isUser ? "text-white/70" : "text-gray-500 dark:text-[#B1A6C0]"
           }`}>
             {moment(message.timestamp).format("LT")}
           </span>

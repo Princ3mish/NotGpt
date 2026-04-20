@@ -56,7 +56,7 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
 
   return (
     <div
-      className={`flex flex-col h-screen min-w-[300px] p-5 bg-[#0a0a0a] border-r border-[#80609F]/20 transition-transform duration-500 max-md:absolute left-0 z-50 ${
+      className={`flex flex-col h-screen min-w-[300px] p-5 bg-gray-50 dark:bg-[#0a0a0a] border-r border-gray-200 dark:border-[#80609F]/20 transition-transform duration-500 max-md:absolute left-0 z-50 ${
         !isMenuOpen && "max-md:-translate-x-full"
       }`}
     >
@@ -69,13 +69,13 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
         {/* Header / Logo */}
         <div className="flex justify-between items-center mb-6">
           <img
-            src={assets.logo_full_dark}
+            src={theme === "dark" ? assets.logo_full_dark : assets.logo_full}
             alt="NotGPT Logo"
-            className="w-full max-w-[140px]"
+            className="w-full max-w-[140px] cursor-pointer"
             onClick={() => { navigate("/"); setIsMenuOpen(false); }}
           />
           <button 
-            className="md:hidden text-gray-400 hover:text-white transition-colors"
+            className="md:hidden text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
             onClick={() => setIsMenuOpen(false)}
           >
             <X size={20} />
@@ -95,21 +95,21 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
         </motion.button>
 
         {/* Search */}
-        <div className="flex items-center gap-2 px-3 py-2.5 mb-6 bg-white/5 border border-white/10 rounded-xl focus-within:border-purple-500/50 focus-within:bg-white/10 transition-colors">
+        <div className="flex items-center gap-2 px-3 py-2.5 mb-6 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus-within:border-purple-500/50 dark:focus-within:border-purple-500/50 focus-within:bg-gray-50 dark:focus-within:bg-white/10 transition-colors shadow-sm dark:shadow-none">
           <Search size={16} className="text-gray-400" />
           <input
             onChange={(e) => setSearch(e.target.value)}
             value={search}
             type="text"
             placeholder="Search conversations"
-            className="flex-1 bg-transparent text-sm text-white placeholder:text-gray-500 outline-none"
+            className="flex-1 bg-transparent text-sm text-gray-800 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 outline-none"
           />
         </div>
 
         {/* Chat History */}
         <div className="flex-1 overflow-y-auto scroll-smooth pr-1 -mr-1">
           {chats.length > 0 && (
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-2">
+            <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2 px-2">
               Recent Chats
             </p>
           )}
@@ -132,24 +132,24 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
                     setIsMenuOpen(false);
                   }}
                   key={chat._id}
-                  className="p-3 mb-2 bg-[#57317C]/10 border border-transparent hover:border-[#80609F]/30 hover:bg-[#57317C]/20 rounded-xl cursor-pointer flex justify-between items-center group transition-colors"
+                  className="p-3 mb-2 bg-white dark:bg-[#57317C]/10 border border-transparent hover:border-purple-500/30 dark:hover:border-[#80609F]/30 hover:bg-purple-50 dark:hover:bg-[#57317C]/20 rounded-xl cursor-pointer flex justify-between items-center group transition-colors shadow-sm dark:shadow-none"
                 >
                   <div className="flex items-center gap-3 overflow-hidden">
-                    <MessageSquare size={16} className="text-purple-400 shrink-0" />
+                    <MessageSquare size={16} className="text-purple-500 dark:text-purple-400 shrink-0" />
                     <div className="overflow-hidden">
-                      <p className="text-sm text-gray-200 truncate w-full">
+                      <p className="text-sm text-gray-700 dark:text-gray-200 truncate w-full">
                         {chat.messages.length > 0
                           ? chat.messages[0].content.slice(0, 30)
                           : chat.name}
                       </p>
-                      <p className="text-[10px] text-gray-500 mt-0.5">
+                      <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">
                         {moment(chat.updatedAt).fromNow()}
                       </p>
                     </div>
                   </div>
                   <button
                     onClick={(e) => deleteChat(e, chat._id)}
-                    className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-white/10 rounded-lg transition-all text-gray-400 hover:text-red-400 shrink-0"
+                    className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-red-50 dark:hover:bg-white/10 rounded-lg transition-all text-gray-400 hover:text-red-500 dark:hover:text-red-400 shrink-0"
                   >
                     <Trash2 size={14} />
                   </button>
@@ -159,33 +159,33 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
         </div>
 
         {/* Bottom Nav Actions */}
-        <div className="mt-4 pt-4 border-t border-white/10 flex flex-col gap-1">
+        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-white/10 flex flex-col gap-1">
           <div
             onClick={() => { navigate("/community"); setIsMenuOpen(false); }}
-            className={navItemClass}
+            className={`flex items-center gap-3 p-3 mt-2 rounded-xl cursor-pointer transition-all duration-300 border border-transparent hover:bg-purple-50 dark:hover:bg-white/5 hover:border-purple-100 dark:hover:border-white/10 group overflow-hidden relative`}
           >
             <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-transparent translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-300" />
-            <ImageIcon size={18} className="text-gray-400 group-hover:text-purple-400 relative z-10 transition-colors" />
-            <span className="text-sm font-medium text-gray-300 group-hover:text-white relative z-10 transition-colors">Community Gallery</span>
+            <ImageIcon size={18} className="text-gray-500 dark:text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400 relative z-10 transition-colors" />
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white relative z-10 transition-colors">Community Gallery</span>
           </div>
 
           <div
             onClick={() => { navigate("/credits"); setIsMenuOpen(false); }}
-            className={navItemClass}
+            className={`flex items-center gap-3 p-3 mt-2 rounded-xl cursor-pointer transition-all duration-300 border border-transparent hover:bg-blue-50 dark:hover:bg-white/5 hover:border-blue-100 dark:hover:border-white/10 group overflow-hidden relative`}
           >
             <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-transparent translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-300" />
-            <Gem size={18} className="text-gray-400 group-hover:text-blue-400 relative z-10 transition-colors" />
+            <Gem size={18} className="text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 relative z-10 transition-colors" />
             <div className="flex flex-col relative z-10">
-              <span className="text-sm font-medium text-gray-300 group-hover:text-white transition-colors">
-                Credits: <span className="text-blue-400">{user?.credits || 0}</span>
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
+                Credits: <span className="text-blue-600 dark:text-blue-400">{user?.credits || 0}</span>
               </span>
             </div>
           </div>
 
-          <div className="flex items-center justify-between p-3 mt-2 rounded-xl bg-white/5 border border-white/5">
+          <div className="flex items-center justify-between p-3 mt-2 rounded-xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/5 shadow-sm dark:shadow-none">
             <div className="flex items-center gap-3">
-              <SunMoon size={18} className="text-gray-400" />
-              <span className="text-sm font-medium text-gray-300">Theme</span>
+              <SunMoon size={18} className="text-gray-500 dark:text-gray-400" />
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Theme</span>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
@@ -201,12 +201,12 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
           </div>
 
           {/* User Profile */}
-          <div className="flex items-center gap-3 p-3 mt-2 bg-gradient-to-r from-purple-900/20 to-transparent border border-purple-500/20 rounded-xl cursor-default">
+          <div className="flex items-center gap-3 p-3 mt-2 bg-gradient-to-r from-purple-100 dark:from-purple-900/20 to-transparent border border-purple-200 dark:border-purple-500/20 rounded-xl cursor-default">
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white font-bold text-sm shadow-inner shrink-0">
               {user ? user.name.charAt(0).toUpperCase() : "?"}
             </div>
             <div className="flex flex-col overflow-hidden flex-1 cursor-pointer" onClick={() => !user && navigate("/login")}>
-              <span className="text-sm font-medium text-white truncate">
+              <span className="text-sm font-medium text-gray-800 dark:text-white truncate">
                 {user ? user.name : "Sign in required"}
               </span>
               <span className="text-[10px] text-gray-500 truncate">
@@ -216,7 +216,7 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
             {user && (
               <button 
                 onClick={logout}
-                className="p-1.5 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-white shrink-0"
+                className="p-1.5 hover:bg-gray-200 dark:hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-gray-800 dark:hover:text-white shrink-0"
                 title="Logout"
               >
                 <LogOut size={16} />

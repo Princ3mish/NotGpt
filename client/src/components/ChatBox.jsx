@@ -119,10 +119,10 @@ const ChatBox = () => {
                />
             </div>
             <div className="text-center space-y-2">
-              <h1 className="text-3xl sm:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-white to-blue-400 opacity-90 tracking-tight">
+              <h1 className="text-3xl sm:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-gray-800 to-blue-600 dark:from-purple-400 dark:via-white dark:to-blue-400 opacity-90 tracking-tight">
                 How can I help you?
               </h1>
-              <p className="text-gray-400/80 text-sm sm:text-base max-w-md">
+              <p className="text-gray-600 dark:text-gray-400/80 text-sm sm:text-base max-w-md">
                 Experience next-generation AI powered by advanced language models and image generation.
               </p>
             </div>
@@ -140,9 +140,9 @@ const ChatBox = () => {
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-3 p-4 bg-white/5 dark:bg-[#57317C]/10 border border-white/5 w-fit rounded-2xl rounded-tl-none mt-4 backdrop-blur-md"
+            className="flex items-center gap-3 p-4 bg-gray-100 dark:bg-[#57317C]/10 border border-gray-200 dark:border-white/5 w-fit rounded-2xl rounded-tl-none mt-4 backdrop-blur-md"
           >
-             <Sparkles size={16} className="text-purple-400 animate-pulse" />
+             <Sparkles size={16} className="text-purple-500 dark:text-purple-400 animate-pulse" />
              <div className="flex items-center gap-1.5">
                <div className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-[bounce_1s_infinite_0ms]"></div>
                <div className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-[bounce_1s_infinite_200ms]"></div>
@@ -160,9 +160,9 @@ const ChatBox = () => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
-              className="inline-flex items-center gap-3 mb-4 text-sm bg-white/5 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 cursor-pointer hover:bg-white/10 transition-colors"
+              className="inline-flex items-center gap-3 mb-4 text-sm bg-gray-100 dark:bg-white/5 backdrop-blur-md px-4 py-2 rounded-full border border-gray-200 dark:border-white/10 cursor-pointer hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"
             >
-              <span className="text-gray-300 font-medium tracking-wide">Publish to Gallery</span>
+              <span className="text-gray-700 dark:text-gray-300 font-medium tracking-wide">Publish to Gallery</span>
               <div className="relative">
                 <input
                   type="checkbox"
@@ -180,14 +180,14 @@ const ChatBox = () => {
 
         <form
           onSubmit={onSubmit}
-          className="bg-white/10 dark:bg-[#1E112A]/80 backdrop-blur-xl border border-white/20 dark:border-purple-500/30 rounded-2xl shadow-2xl w-full p-2 pl-3 mx-auto flex gap-3 flex-wrap sm:flex-nowrap items-center focus-within:border-purple-500/50 transition-colors hover:shadow-purple-900/20"
+          className="bg-white dark:bg-[#1E112A]/80 backdrop-blur-xl border border-gray-300 dark:border-purple-500/30 rounded-2xl shadow-xl dark:shadow-2xl w-full p-2 pl-3 mx-auto flex gap-3 flex-wrap sm:flex-nowrap items-center focus-within:border-purple-500/50 transition-colors dark:hover:shadow-purple-900/20"
         >
           {/* Mode Switcher */}
           <div className="relative group shrink-0 hidden sm:block">
             <select
               onChange={(e) => setMode(e.target.value)}
               value={mode}
-              className="appearance-none bg-transparent text-sm pl-9 pr-4 py-2 outline-none font-medium text-gray-200 cursor-pointer border-r border-white/10"
+              className="appearance-none bg-transparent text-sm pl-9 pr-4 py-2 outline-none font-medium text-gray-800 dark:text-gray-200 cursor-pointer border-r border-gray-200 dark:border-white/10"
             >
               <option className="bg-[#1E112A] text-white" value="text">Text</option>
               <option className="bg-[#1E112A] text-white" value="image">Image</option>
@@ -197,9 +197,9 @@ const ChatBox = () => {
             </div>
           </div>
 
-          <div className="sm:hidden flex items-center bg-white/5 rounded-lg p-1">
-             <button type="button" onClick={() => setMode("text")} className={`p-1.5 rounded-md ${mode === "text" ? "bg-purple-600 text-white" : "text-gray-400"}`}><Type size={14}/></button>
-             <button type="button" onClick={() => setMode("image")} className={`p-1.5 rounded-md ${mode === "image" ? "bg-purple-600 text-white" : "text-gray-400"}`}><ImageIcon size={14}/></button>
+          <div className="sm:hidden flex items-center bg-gray-100 dark:bg-white/5 rounded-lg p-1">
+             <button type="button" onClick={() => setMode("text")} className={`p-1.5 rounded-md ${mode === "text" ? "bg-purple-600 text-white" : "text-gray-500 dark:text-gray-400"}`}><Type size={14}/></button>
+             <button type="button" onClick={() => setMode("image")} className={`p-1.5 rounded-md ${mode === "image" ? "bg-purple-600 text-white" : "text-gray-500 dark:text-gray-400"}`}><ImageIcon size={14}/></button>
           </div>
 
           <input
@@ -218,7 +218,7 @@ const ChatBox = () => {
             className={`shrink-0 p-2.5 rounded-xl flex items-center justify-center transition-all ${
               prompt.trim() && !loading 
                 ? "bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-600/30 cursor-pointer" 
-                : "bg-white/5 text-gray-500 cursor-not-allowed"
+                : "bg-gray-100 dark:bg-white/5 text-gray-400 dark:text-gray-500 cursor-not-allowed"
             }`}
           >
             {loading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Send size={18} className="translate-x-[-1px] translate-y-[1px]" />}
