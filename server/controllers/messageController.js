@@ -1,7 +1,7 @@
 import axios from "axios";
 import Chat from "../models/Chat.js";
 import User from "../models/User.js";
-import openai from "../configs/openai.js";
+import getOpenAI from "../configs/openai.js";
 import imagekit from "../configs/imageKit.js";
 
 // Helper: retry with exponential backoff for rate limits
@@ -56,8 +56,8 @@ export const textMessageController = async (req, res) => {
     let choices;
     try {
       const result = await withRetry(() =>
-        openai.chat.completions.create({
-          model: "gemini-2.0-flash",
+        getOpenAI().chat.completions.create({
+          model: "meta/llama-3.1-8b-instruct",
           messages: [{ role: "user", content: prompt }],
         })
       );
